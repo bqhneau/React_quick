@@ -1,70 +1,208 @@
-# Getting Started with Create React App
+## 1、创建项目
+```
+    npx create-react-app myReact
+```
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 2、启动项目
+```
+    cd myReact
+    npm start
+```
 
-## Available Scripts
+## 3、jsx语法
+```
+    1、只能有一个根标签/<></>
+    2、所有标签必须闭合
+    3、jsx语法要写在小括号()里面 !!!
+```
 
-In the project directory, you can run:
+## 4、插值 { }
+```
+    1、插值可以使用的位置
+        标签内容
+        标签属性
+    2、{ }里面为js语句
 
-### `npm start`
+```
+```js
+【代码】
+function App() {
+  const divContent = '我是标签内容';
+  const divTitle = '我是标签标题';
+  return (
+    <div title={divTitle}> { divContent }</div>
+  );
+}
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+export default App;
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 5、条件渲染
+```
+    根据js手写逻辑
+```
+```js
+【情况一】
+function App() {
+  let divContent = null;
+  const divTitle = '我是标签标题';
 
-### `npm test`
+  const flag = true;
+  if (flag) {
+    divContent = <span>span</span>
+  } else {
+    divContent = <p>p</p>
+  }
+  return (
+    <div title={divTitle}> { divContent }</div>
+  );
+}
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+export default App;
 
-### `npm run build`
+【情况二】
+import { Fragment } from "react";
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+function App() {
+  const list = ['张三', '李四', '王五']
+  
+  const li = list.map((item, index) => (
+    // 1、空标签中是不能加key的
+    // <  key= { index }>
+    //   <li >{item}</li>
+    //   <li>------</li>
+    // </>
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+    // 2、使用 react 提供的 Fragment
+    <Fragment key={index}>
+      <li >{item}</li>
+      <li>------</li>
+    </Fragment>
+  ))
+  return (
+    <ul>{ li }</ul>
+  );
+}
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+export default App;
 
-### `npm run eject`
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 6、列表渲染
+```
+    一样是通过数组方法map或者foreach等方法自己循环
+```
+```js
+function App() {
+  const list = ['张三', '李四', '王五']
+  // 这里一定要用()
+  const li = list.map((item,index) => (
+    <li key={index}>{item}</li>
+  ))
+  return (
+    <ul>{ li }</ul>
+  );
+}
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+export default App;
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 7、事件绑定
+```js
+function App() {
+  function handleClick(e){
+    console.log('点击了按钮',e);
+  }
+  return (
+   <button onClick={handleClick}>按钮</button>
+  );
+}
 
-## Learn More
+export default App;
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 8、状态处理(useState)
+### 8.1 基本使用
+```js
+import {useState} from 'react'
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+function App() {
+  function handleClick(){
+   setContent('已更改')
+  }
 
-### Code Splitting
+  const [content, setContent] = useState('默认内容')
+  return (
+    <>
+      <div>{content}</div>
+      <button onClick={handleClick}>按钮</button>
+    </>
+  );
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+export default App;
+```
 
-### Analyzing the Bundle Size
+### 8.2 对象一些细节
+    useState修改值是覆盖，不是追加
+    所以更改对象时，应该先解构，再追加
+```js
+import {useState} from 'react'
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+function App() {
+  function handleClick() {
+    // useState修改值是覆盖，不是追加
+    setContent({
+      ...content,
+      content:'新内容'
+   })
+  }
 
-### Making a Progressive Web App
+  const [content, setContent] = useState({
+    title: '标题',
+    content:'内容'
+  })
+  return (
+    <>
+      <div title={ content.title}>{content.content}</div>
+      <button onClick={handleClick}>按钮</button>
+    </>
+  );
+}
+export default App;
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```
 
-### Advanced Configuration
+### 8.3 数组的一些细节
+```js
+import { useState } from 'react'
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+function App() {
+  const [data, setData] = useState([
+    { id: 1, name: 'zhangsan' },
+    { id: 2, name: 'lisi' },
+    { id: 3, name: 'wangwu' },
+  ])
 
-### Deployment
+  const list = data.map(item => (
+    <li key={item.id}> { item.name }</li>
+  ))
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+  function handleClick() {
+    // useState修改值是覆盖，不是追加
+    setData([
+      ...data,
+      {id:4,name:'111'}
+    ])
+  }
+  return (
+    <>
+      <ul>{ list}</ul>
+      <button onClick={handleClick}>按钮</button>
+    </>
+  );
+}
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+export default App;
+```
