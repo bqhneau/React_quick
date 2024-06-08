@@ -109,6 +109,9 @@ export default App;
 ```
 
 ## 7、事件绑定
+```
+  函数组件中无this
+```
 ```js
 function App() {
   function handleClick(e){
@@ -206,3 +209,118 @@ function App() {
 
 export default App;
 ```
+
+## 9、组件通信(父=>子)
+
+### 9.1 为组件设置props
+```
+    1、className = '' 
+    2、style = { { } }
+      (1) 内联式：内部直接写
+      (2) 外链式：使用变量
+      (3) jsx展开语法，直接将所有的属性结构放在元素(不同于es6)
+```
+
+### 9.2 props 传值基本使用
+```
+    1、函数接收第一个参数为props 
+    2、从中解构出标题和内容，方便后续使用
+```
+```js
+function Article( {title,content,active}) {
+  return (
+    <div>
+      <h3>{ title }</h3>
+      <p>{content}</p>
+      <p>{ active?'显示':'隐藏'} </p>
+    </div>
+  )
+}
+
+function App() {
+  
+  return (
+    <>
+      <Article title='标题1' content='内容1' active />
+      <Article title='标题2' content='内容2' />
+      <Article title='标题3' content='内容3' active />
+    </>
+  );
+}
+
+export default App;
+```
+
+### 9.3 插槽
+```
+    1、react中的插槽本质上就是props中的一个属性【children】
+    2、父组件通过props向子组件传递html解构，子组件从【props的children】中取出
+```
+```js
+
+function List( {children} ) {
+  return (
+    <ul>{children}</ul>
+  )
+}
+
+function App() {
+  
+  return (
+    <>
+      <List>
+        <li>内容</li>
+        <li>内容</li>
+        <li>内容</li>
+      </List>
+    </>
+  );
+}
+
+export default App;
+```
+
+## 10、组件通信(子=>父)
+```
+    1、父组件向子组件传递一个方法
+    2、子组件接收该方法
+    3、子组件在合适的时机调用并传参
+    4、父组件拿到子组件的数据
+```
+```js
+import { useState } from "react";
+
+// 2、子组件接收该方法
+function Detail( {onActice}) {
+
+  const [status,setStatus] = useState(false)
+  const handleClick = () => {
+    setStatus(!status)
+    // 3、在合适的时机调用并传参
+    onActice(status)
+  }
+  return (
+    <>
+      <button onClick={handleClick}> 点我切换</button>
+      <span style={{ 
+        display: status ? 'block' : 'none'
+       }}>Detail的内容</span>
+    </>
+  )
+}
+
+function App() {
+  // 4、父组件拿到子组件的数据
+  const handle = (status) => {
+    console.log(status);
+  }
+  return (
+    // 1、向子组件传递一个方法
+    <Detail onActice={ handle } />
+  );
+}
+
+export default App;
+```
+
+## 10、组件通信(多级)
