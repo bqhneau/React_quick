@@ -125,7 +125,7 @@ function App() {
 export default App;
 ```
 
-## 8、状态处理(useState)
+## 8、useState
 ### 8.1 基本使用
 ```js
 import {useState} from 'react'
@@ -323,4 +323,197 @@ function App() {
 export default App;
 ```
 
-## 10、组件通信(多级)
+## 11、useReducer
+```
+    1、相较于 useState 更高效
+    2、语法：[状态，分发方法] = useReducer(处理函数，初始值)
+    const [state, dispatch] = useReducer(countReducer, 0)
+```
+```js
+import {useReducer} from 'react'
+// 1、声明处理函数
+function countReducer(state,actions) {
+  switch (actions.type) {
+    case 'add': 
+      return state +1
+    case 'dec':
+      return state - 1
+    default:
+      throw new Error()
+  }
+}
+function App() {
+  // [状态，分发方法] = useReducer(处理函数，初始值)
+  // 2、使用useReducer
+  const [state, dispatch] = useReducer(countReducer, 0)
+  const add = () => dispatch({type:'add'})
+  const dec = () => dispatch({type:'dec'})
+  return (
+    <div style={{margin:'20px'}}>
+      <button onClick={dec}>-</button>
+      <span>{state}</span>
+      <button onClick={add}>+</button>
+    </div>
+  )
+}
+export default App
+```
+
+## 12、useRef
+```
+  1、用来引用之前的值
+  2、用来获取标签
+  3、用来获取子组件以及子组件身上的方法
+```
+
+### 12.1 用来引用之前的值
+```js
+import {useState,useRef} from 'react'
+
+function App() {
+
+  const [count, setCount] = useState(0)
+  // 1、定义表示变量
+  const pre = useRef()
+
+  const add = () => {
+    // 2、使用 useRef 获取最新的值 
+    pre.current = count;
+    setCount( count+1 ) 
+  }
+  
+  return (
+    <div style={{margin:'20px'}}>
+      <p>最新的count：{ count }</p>
+      <p>上次的count：{ pre.current}</p>
+      <button onClick={add}>增加count</button>
+    </div>
+  )
+}
+
+export default App
+```
+
+### 12.2 用来获取标签
+```js
+import { useRef } from 'react'
+
+function App() {
+
+  // 1、定义表示变量
+  const input = useRef()
+
+  const add = () => {
+    // 3、使用 useRef 获取更新input的值 
+    input.current.value = 1
+  }
+  
+  return (
+    <div style={{ margin: '20px' }}>
+      {/* 2、绑定关联 */}
+      <input type="text" ref={input} />
+      <button onClick={add}>按钮</button>
+    </div>
+  )
+}
+
+export default App
+```
+
+### 12.3 用来获取子组件以及子组件身上的方法
+```
+    1、函数组件不是实例，所以无法直接获取子组件甚至其身上的方法
+    2、可以借助 forwardRef useImperativeHandle 获取
+```
+```js
+import { useRef,forwardRef,useImperativeHandle } from 'react'
+
+// 2、使用 forwardRef 暴露组件
+const Child = forwardRef(function (props, ref) {
+  // 3、使用 useImperativeHandle 暴露函数
+  useImperativeHandle(ref, () => ({
+    myFn: () => {
+      console.log('子组件的方法');
+    }
+  }))
+
+  return (
+    <h3>child</h3>
+  )
+})
+
+function App() {
+
+  // 1、定义表示变量
+  const child = useRef()
+
+  // 4、获取到子组件的方法
+  const getSon = () => {
+    console.log(child.current);
+    child.current.myFn()
+  }
+
+  return (
+    <div >
+      <h2>father</h2>
+      <Child ref={child} />
+      <button onClick={getSon}>获取子组件</button>
+    </div>
+  )
+}
+
+export default App
+```
+
+## 13、useEffect
+```
+    (1). Effect Hook 可以让你在函数组件中执行副作用操作(用于模拟类组件中的生命周期钩子)
+    (2). React中的副作用操作:
+            发ajax请求数据获取
+            设置订阅 / 启动定时器
+            手动更改真实DOM
+    (3). 语法和说明: 
+            useEffect(() => { 
+              // 在此可以执行任何带副作用操作
+              return () => { // 在组件卸载前执行
+                // 在此做一些收尾工作, 比如清除定时器/取消订阅等
+              }
+            }, [stateValue]) // 如果指定的是[], 回调函数只会在第一次render()后执行
+        
+    (4). 可以把 useEffect Hook 看做如下三个函数的组合
+            componentDidMount()
+            componentDidUpdate()
+            componentWillUnmount() 
+```
+
+```js
+// 1、相当于 componentDidMount
+  useEffect(() => {
+    console.log('componentDidMount');
+  }, [])
+  
+  // 2、相当于  componentDidUpdate
+  useEffect(() => {
+    console.log(' componentDidUpdate');
+  }, [state])
+
+  // 3、相当于 componentWillUnmount
+  useEffect(() => {
+    return () => {
+      console.log('componentWillUnmount');
+    }
+  }, [state])
+
+  // 4、componentWillUnmount 简写
+  useEffect(() => () => {
+      console.log('componentWillUnmount');
+  }, [state])
+```
+
+## 14、useMemo 与 useCallback
+```
+    1、都用于【函数组件性能优化】，主要就是一个【缓存】
+    2、useMemo 用来缓存【数据】 可以填依赖项
+    3、useCallback 用来缓存【函数】 可以填依赖项
+    4、类似于vue的【计算属性】
+```
